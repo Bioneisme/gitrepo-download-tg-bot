@@ -5,7 +5,7 @@ import commands from './commands/main';
 import logging from './config/logging';
 import config from './config/settings';
 
-export interface BotContext extends Context {
+interface BotContext extends Context {
     myContextProp: string
     scene: Scenes.SceneContextScene<BotContext, Scenes.WizardSessionData>
     wizard: Scenes.WizardContextWizard<BotContext>
@@ -13,6 +13,7 @@ export interface BotContext extends Context {
 
 const token: string = config.bot.token;
 const app: Telegraf<BotContext> = new Telegraf(token);
+
 // @ts-ignore
 const stage = new Scenes.Stage([getRepoScene], {ttl: 10})
 
@@ -35,7 +36,6 @@ app.help(commands.help);
 app.command('getRepo', async (ctx) => {
     ctx.scene.enter('getRepo')
 });
-
 
 app.launch().then(() => {
     console.log('Bot started')
