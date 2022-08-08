@@ -10,7 +10,7 @@ const info = (user: User, message: string): void => {
     return console.info(`[${getTimeStamp()}] [INFO] (${user.username || user.id}): ${message}`);
 };
 
-const error = (user: User, error: string, method: string, message: string): void => {
+const error = (user: User, error: string | undefined, method: string, message: string): void => {
     return console.error(`[${getTimeStamp()}] [ERROR] ${error} [METHOD: ${method}] | (${user.username || user.id}): ${message}`);
 };
 
@@ -23,7 +23,7 @@ const debug = (user: User, message: string): void => {
 };
 
 const getTimeStamp = (): string => {
-    return new Date().toISOString();
+    return new Date().toUTCString();
 };
 
 export default {
