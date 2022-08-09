@@ -25,7 +25,10 @@ app.use(stage.middleware())
 
 /** Logging middleware */
 app.use(async (ctx, next) => {
-    logging.info(ctx.message?.from, (ctx.message as Message.TextMessage).text);
+    if (ctx.callbackQuery)
+        logging.info(ctx.callbackQuery?.from, `[markup] ${ctx.callbackQuery.data}`);
+    else
+        logging.info(ctx.message?.from, (ctx.message as Message.TextMessage)?.text);
 
     await next();
 });
@@ -35,26 +38,11 @@ app.start(commands.start);
 app.help(commands.help);
 
 app.command('getRepo', (ctx) => { ctx.scene.enter('getRepo') });
+app.action('/getRepo', (ctx) => { ctx.scene.enter('getRepo') });
+app.command('getAllRepos', commands.getRepos);
+app.action('/getAllRepos', commands.getRepos);
 
 app.launch().then(() => { logging.info(undefined,'Bot started') });
 
 process.once('SIGINT', () => app.stop('SIGINT'));
 process.once('SIGTERM', () => app.stop('SIGTERM'));
-
-// app.command('quit', (ctx) => {
-//     ctx.telegram.leaveChat(ctx.message.chat.id).then(() => {
-//         ctx.leaveChat();
-//     }).catch(e => {
-//         logging.error(ctx.message.from, e.message, e.on.method, ctx.message.text);
-//     })
-// });
-
-// app.command('keyboard', (ctx) => {
-//     ctx.reply(
-//         'Keyboard',
-//         Markup.inlineKeyboard([
-//             Markup.button.callback('First option', 'first'),
-//             Markup.button.callback('Second option', 'second'),
-//         ])
-//     );
-// });
