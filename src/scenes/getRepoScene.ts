@@ -8,7 +8,7 @@ let repo: string;
 export const getRepoScene = new Scenes.WizardScene(
     'getRepo',
     async (ctx) => {
-        await ctx.reply('Username: ');
+        await ctx.reply('GitHub username: ');
         return ctx.wizard.next();
     },
     async (ctx) => {
