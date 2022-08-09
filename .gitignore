@@ -1,3 +1,5 @@
 node_modules
 .env
 .idea
+src/debug.log
+src/uploads
