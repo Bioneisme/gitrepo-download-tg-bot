@@ -8,13 +8,24 @@ import logging from "../config/logging";
 
 class Commands {
     async start(ctx: Context) {
-        await ctx.reply('Hello ' + ctx.from?.first_name + '!');
+        await ctx.reply(`My greetings to you, ${ctx.from?.first_name}! 🎉 \n` +
+            `I give you the opportunity to download GitHub repositories directly from telegram!\n\n` +
+            `You only need to select /getRepo command, and then write github username and repository ✍ \n` +
+            `To view all commands and their descriptions, write /help`
+        );
     }
 
     async help(ctx: Context) {
-        await ctx.reply('Send /start to receive a greeting');
-        await ctx.reply('Send /keyboard to receive a message with a keyboard');
-        await ctx.reply('Send /quit to stop the bot');
+        await ctx.reply(`/start - a greeting\n` +
+            `/help - all commands\n` +
+            `/getRepo - download github repository\n` +
+            `/getAllRepos - get a list of all repositories, that are stored on bot server\n` +
+            `-----------------\n` +
+            `By default, the bot is downloaded master branch, if there is none, ` +
+            `then installed default branch.\n` +
+            `After the initial repository download, they are stored on the bot's server.\n` +
+            `After ${CFG.days} days, the repository is updated again.`
+        );
     }
 
     async downloadRepo(ctx: Context, username: string, repo: string) {
