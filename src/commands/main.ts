@@ -47,7 +47,7 @@ class Commands {
                     const createdDate = moment(res.rows[0].createdat);
                     const fromDate = moment(moment(res.rows[0].createdat)).fromNow();
 
-                    if (moment().diff(createdDate, 'days') === CFG.days) {
+                    if (moment().diff(createdDate, 'days') >= CFG.days) {
                         logging.warn(ctx.message?.from, `${dest} has been sent for updating`);
                         await ctx.reply(`${CFG.days} days have passed. It's time to update ${filename} file. Updating...`)
                         return createFile(true);
@@ -133,8 +133,8 @@ class Commands {
     }
 
     async getRepos(ctx: Context) {
+        let listStr: string = '';
         pool.query(`SELECT file, createdAt FROM repositories`).then(res => {
-            let listStr: string = '';
             res.rows.forEach(data => {
                 listStr += `${data.file} | ${moment(data.createdat).fromNow()} \n(${moment(data.createdat)})\n`
             });
@@ -142,6 +142,7 @@ class Commands {
             return ctx.reply(listStr);
         }).catch(e => {
             logging.error(ctx.message?.from, e.message);
+            return ctx.reply(`The list of repositories is empty :(`);
         });
     }
 }
