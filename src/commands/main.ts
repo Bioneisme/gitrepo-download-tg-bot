@@ -1,6 +1,6 @@
 import fs from 'fs';
 import moment from "moment";
-import {Context} from "telegraf";
+import {Context, Markup} from "telegraf";
 import {https} from 'follow-redirects';
 import {pool} from "../config/database";
 import {CFG} from "../config/settings";
@@ -24,7 +24,11 @@ class Commands {
             `By default, the bot is downloaded master branch, if there is none, ` +
             `then installed default branch.\n` +
             `After the initial repository download, they are stored on the bot's server.\n` +
-            `After ${CFG.days} days, the repository is updated again.`
+            `After ${CFG.days} days, the repository is updated again.`,
+            Markup.inlineKeyboard([
+                Markup.button.callback('Download repository', '/getRepo'),
+                Markup.button.callback('Get all saved repositories', '/getAllRepos'),
+            ])
         );
     }
 
@@ -68,7 +72,9 @@ class Commands {
 
             const request = https.get(URL, response => {
                 if (response.statusCode !== 200) {
-                    fs.unlink(dest, () => {
+                    fs.unlink(source, (err) => {
+                        if (err) logging.error(ctx.message?.from, `${dest} ${err.message}`);
+
                         logging.error(ctx.message?.from, `${dest} ${response.statusMessage}`);
 
                         ctx.reply(`File (${URL}) ${response.statusMessage}. ` +
@@ -107,19 +113,36 @@ class Commands {
             });
 
             request.on('error', err => {
-                fs.unlink(dest, () => {
+                fs.unlink(source, (error) => {
+                    if (error) logging.error(ctx.message?.from, `${dest} ${error.message}`);
+
                     logging.error(ctx.message?.from, `${dest} ${err.message}`);
                 });
             });
 
             file.on('error', err => {
-                fs.unlink(dest, () => {
+                fs.unlink(source, (error) => {
+                    if (error) logging.error(ctx.message?.from, `${dest} ${error.message}`);
+
                     logging.error(ctx.message?.from, `${dest} ${err.message}`);
                 });
             });
 
             request.end();
         }
+    }
+
+    async getRepos(ctx: Context) {
+        pool.query(`SELECT file, createdAt FROM repositories`).then(res => {
+            let listStr: string = '';
+            res.rows.forEach(data => {
+                listStr += `${data.file} | ${moment(data.createdat).fromNow()} \n(${moment(data.createdat)})\n`
+            });
+
+            return ctx.reply(listStr);
+        }).catch(e => {
+            logging.error(ctx.message?.from, e.message);
+        });
     }
 }
 
