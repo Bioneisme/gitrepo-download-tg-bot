@@ -1,9 +1,10 @@
-import {Context, Telegraf, Scenes, session} from 'telegraf';
+import LocalSession from 'telegraf-session-local';
+import {Context, Telegraf, Scenes} from 'telegraf';
 import {Message} from 'typegram';
 import {getRepoScene} from './scenes/getRepoScene';
 import commands from './commands/main';
 import logging from './config/logging';
-import config from './config/settings';
+import {BOT} from './config/settings';
 
 interface BotContext extends Context {
     myContextProp: string
@@ -11,20 +12,20 @@ interface BotContext extends Context {
     wizard: Scenes.WizardContextWizard<BotContext>
 }
 
-const token: string = config.bot.token;
+const token: string = BOT.token;
 const app: Telegraf<BotContext> = new Telegraf(token);
 
 // @ts-ignore
-const stage = new Scenes.Stage([getRepoScene], {ttl: 10})
+const stage = new Scenes.Stage([getRepoScene], {ttl: 10});
+const session = new LocalSession();
 
-app.use(session())
+app.use(session.middleware())
 // @ts-ignore
 app.use(stage.middleware())
 
 /** Logging middleware */
 app.use(async (ctx, next) => {
-    if (ctx.message)
-        logging.info(ctx.message.from, (ctx.message as Message.TextMessage).text);
+    logging.info(ctx.message?.from, (ctx.message as Message.TextMessage).text);
 
     await next();
 });
@@ -33,13 +34,9 @@ app.start(commands.start);
 
 app.help(commands.help);
 
-app.command('getRepo', async (ctx) => {
-    ctx.scene.enter('getRepo')
-});
+app.command('getRepo', (ctx) => { ctx.scene.enter('getRepo') });
 
-app.launch().then(() => {
-    console.log('Bot started')
-});
+app.launch().then(() => { logging.info(undefined,'Bot started') });
 
 process.once('SIGINT', () => app.stop('SIGINT'));
 process.once('SIGTERM', () => app.stop('SIGTERM'));
