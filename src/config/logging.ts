@@ -1,3 +1,5 @@
+import moment from "moment";
+
 type User = {
     id: number;
     is_bot: boolean;
@@ -6,24 +8,36 @@ type User = {
     language_code?: string | undefined;
 };
 
-const info = (user: User, message: string): void => {
-    return console.info(`[${getTimeStamp()}] [INFO] (${user.username || user.id}): ${message}`);
+const info = (user: User | undefined, message: string): void => {
+    if (user)
+        return console.info(`[${getTimeStamp()}] [INFO] (${user.username || user.id}): ${message}`);
+
+    return console.info(`[${getTimeStamp()}] [INFO] ${message}`);
 };
 
-const error = (user: User, error: string | undefined, method: string, message: string): void => {
-    return console.error(`[${getTimeStamp()}] [ERROR] ${error} [METHOD: ${method}] | (${user.username || user.id}): ${message}`);
+const error = (user: User | undefined, message: string): void => {
+    if (user)
+        return console.error(`[${getTimeStamp()}] [ERROR] (${user.username || user.id}): ${message}`);
+
+    return console.error(`[${getTimeStamp()}] [ERROR] ${message}`);
 };
 
-const warn = (user: User, message: string): void => {
-    return console.warn(`[${getTimeStamp()}] [WARN] (${user.username || user.id}): ${message}`);
+const warn = (user: User | undefined, message: string): void => {
+    if (user)
+        return console.warn(`[${getTimeStamp()}] [WARN] (${user.username || user.id}): ${message}`);
+
+    return console.warn(`[${getTimeStamp()}] [WARN] ${message}`);
 };
 
-const debug = (user: User, message: string): void => {
-    return console.debug(`[${getTimeStamp()}] [DEBUG] (${user.username || user.id}): ${message}`);
+const debug = (user: User | undefined, message: string): void => {
+    if (user)
+        return console.debug(`[${getTimeStamp()}] [DEBUG] (${user.username || user.id}): ${message}`);
+
+    return console.debug(`[${getTimeStamp()}] [DEBUG] ${message}`);
 };
 
 const getTimeStamp = (): string => {
-    return new Date().toUTCString();
+    return moment().toString();
 };
 
 export default {
