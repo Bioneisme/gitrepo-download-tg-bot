@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  bot:
+    image: repo-bot:1.0.0
+    container_name: repo-bot
+    restart: unless-stopped
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    depends_on:
+      - db
+    env_file:
+      - .env
+    networks:
+      - shared-network
+
+  db:
+    image: postgres:11.5
+    restart: always
+    volumes:
+      - ./postgres-db:/var/lib/postgresql/data
+      - ./database-seed.sql:/docker-entrypoint-initdb.d/database-seed.sql
+    ports:
+      - "5432:5432"
+    expose:
+      - "5243"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
