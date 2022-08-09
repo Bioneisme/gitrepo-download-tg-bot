@@ -5,6 +5,7 @@ import {getRepoScene} from './scenes/getRepoScene';
 import commands from './commands/main';
 import logging from './config/logging';
 import {BOT} from './config/settings';
+import {pool} from './config/database';
 
 interface BotContext extends Context {
     myContextProp: string
@@ -34,7 +35,6 @@ app.use(async (ctx, next) => {
 });
 
 app.start(commands.start);
-
 app.help(commands.help);
 
 app.command('getRepo', (ctx) => { ctx.scene.enter('getRepo') });
@@ -43,6 +43,10 @@ app.command('getAllRepos', commands.getRepos);
 app.action('/getAllRepos', commands.getRepos);
 
 app.launch().then(() => { logging.info(undefined,'Bot started') });
+pool.connect().then(() => { logging.info(undefined,'Database connected') }).catch(e => {
+   logging.error(undefined, `${e.message}`);
+});
+
 
 process.once('SIGINT', () => app.stop('SIGINT'));
 process.once('SIGTERM', () => app.stop('SIGTERM'));
