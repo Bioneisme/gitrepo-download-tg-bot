@@ -1,4 +1,6 @@
 import moment from "moment";
+import util from "util";
+import fs from "fs";
 
 type User = {
     id: number;
@@ -7,6 +9,21 @@ type User = {
     username?: string | undefined;
     language_code?: string | undefined;
 };
+
+// overload console function to logging in txt file
+const logFile = fs.createWriteStream('./src/debug.log', { flags: 'a' });
+const logStdout = process.stdout;
+
+console.log = function(d) {
+    logFile.write(util.format(d) + '\n');
+    logStdout.write(util.format(d) + '\n');
+};
+
+console.info = console.log;
+console.warn = console.log;
+console.error = console.log;
+console.debug = console.log;
+
 
 const info = (user: User | undefined, message: string): void => {
     if (user)
